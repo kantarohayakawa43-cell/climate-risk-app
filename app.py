@@ -72,4 +72,5 @@ if uploaded_file is not None:
         
         # 結果表示
         st.success(f"📊 {return_period}年に1度の最大リスク予測値")
-        st.markdown(f"<h1 style='text-align: center; color: crimson;'>{risk_value:.2f
+  st.markdown(f"<h1 style='text-align: center; color: crimson;'>{risk_value:.2f} m/s</h1>", unsafe_allow_html=True)
+
