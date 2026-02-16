@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 from scipy.stats import gumbel_r
 import matplotlib.pyplot as plt
-
+import folium                                     # 追加
+from streamlit_folium import st_folium            # 追加
 # ---------------------------------------------------------
 # 1. アプリのタイトルと設定
 # ---------------------------------------------------------
@@ -135,3 +136,46 @@ if uploaded_file is not None:
         st.error("データの読み込みに失敗しました。CSVの中身を確認してください。")
 else:
     st.info("👈 左のサイドバーから CSVファイルをアップロードしてください")
+    # --- (既存のコードの続き) ---
+        
+        # =========================================================
+        # ★追加機能：リスクマップの表示★
+        # =========================================================
+        st.write("---")
+        st.subheader("🗺️ リスク・マッピング")
+        st.caption("対象地点のリスクを地図上で可視化します")
+
+        # ユーザーに緯度経度を入力させる（デフォルトは東京駅周辺）
+        col_lat, col_lon = st.columns(2)
+        with col_lat:
+            input_lat = st.number_input("緯度 (Latitude)", value=35.6895, format="%.4f")
+        with col_lon:
+            input_lon = st.number_input("経度 (Longitude)", value=139.6917, format="%.4f")
+
+        # 地図の作成
+        m = folium.Map(location=[input_lat, input_lon], zoom_start=10, tiles="CartoDB positron")
+
+        # 円の色判定
+        if risk_value >= 25:
+            color = "crimson"
+            fill_color = "red"
+        elif risk_value >= 20:
+            color = "orange"
+            fill_color = "orange"
+        else:
+            color = "blue"
+            fill_color = "cyan"
+
+        # 円を描画
+        folium.CircleMarker(
+            location=[input_lat, input_lon],
+            radius=risk_value * 2.0,  # 風速に応じて大きく
+            color=color,
+            fill=True,
+            fill_color=fill_color,
+            fill_opacity=0.6,
+            popup=f"Risk: {risk_value:.2f} m/s"
+        ).add_to(m)
+
+        # Streamlitで地図を表示
+        st_folium(m, width=700, height=500)
